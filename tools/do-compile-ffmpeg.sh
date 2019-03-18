@@ -80,7 +80,6 @@ FF_MAKE_TOOLCHAIN_FLAGS=$IJK_MAKE_TOOLCHAIN_FLAGS
 FF_MAKE_FLAGS=$IJK_MAKE_FLAG
 FF_GCC_VER=$IJK_GCC_VER
 FF_GCC_64_VER=$IJK_GCC_64_VER
-RTMPDUMP=$FF_BUILD_ROOT/librtmp
 #----- armv7a begin -----
 if [ "$FF_ARCH" = "armv7a" ]; then
     FF_BUILD_NAME=ffmpeg-armv7a
@@ -100,7 +99,6 @@ if [ "$FF_ARCH" = "armv7a" ]; then
 
     FF_EXTRA_CFLAGS="$FF_EXTRA_CFLAGS -march=armv7-a -mcpu=cortex-a8 -mfpu=vfpv3-d16 -mfloat-abi=softfp -mthumb"
     FF_EXTRA_LDFLAGS="$FF_EXTRA_LDFLAGS -Wl,--fix-cortex-a8"
-    FF_EXTRA_LDFLAGS="$FF_EXTRA_LDFLAGS -L$RTMPDUMP/libs/"
 
     FF_ASSEMBLER_SUB_DIRS="arm"
 
@@ -270,6 +268,16 @@ export COMMON_FF_CFG_FLAGS=
 . $FF_BUILD_ROOT/../../config/module.sh
 
 
+#with librtmp
+if [ -f "${FF_DEP_RTMPDUMP_LIB}/librtmp.a" ]; then
+    echo "RTMPDUMP detected"
+# FF_CFG_FLAGS="$FF_CFG_FLAGS --enable-nonfree"
+    FF_CFG_FLAGS="$FF_CFG_FLAGS --enable-librtmp"
+
+    FF_CFLAGS="$FF_CFLAGS -I${FF_DEP_RTMPDUMP_INC}"
+    FF_DEP_LIBS="$FF_DEP_LIBS -L${FF_DEP_RTMPDUMP_LIB} -lrtmp"
+fi
+
 #--------------------
 # with openssl
 if [ -f "${FF_DEP_OPENSSL_LIB}/libssl.a" ]; then
@@ -281,15 +289,7 @@ if [ -f "${FF_DEP_OPENSSL_LIB}/libssl.a" ]; then
     FF_DEP_LIBS="$FF_DEP_LIBS -L${FF_DEP_OPENSSL_LIB} -lssl -lcrypto"
 fi
 
-#with librtmp
-if [ -f "${FF_DEP_RTMPDUMP_LIB}/librtmp.a" ]; then
-    echo "RTMPDUMP detected"
-# FF_CFG_FLAGS="$FF_CFG_FLAGS --enable-nonfree"
-    FF_CFG_FLAGS="$FF_CFG_FLAGS --enable-librtmp"
 
-    FF_CFLAGS="$FF_CFLAGS -I${FF_DEP_RTMPDUMP_INC}"
-    FF_DEP_LIBS="$FF_DEP_LIBS -L${FF_DEP_RTMPDUMP_LIB} -lrtmp -lssl -lcrypto"
-fi
 
 
 # with libfdk-aac
